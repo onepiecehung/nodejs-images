@@ -47,7 +47,10 @@ app.use(session({
 app.get('/', routes.index);//call for main index page
 app.get('/register', user.signup);//call for signup page
 app.post('/register', user.signup);//call for signup post 
-
+app.get('/login', routes.index);//call for login page
+app.post('/login', user.login);//call for login post
+app.get('/home/profile', user.profile);//to render users profile
+app.get('/home/logout', user.logout);//call for logout
 
 // ! Middleware
 app.listen(`${port}`, () => {
