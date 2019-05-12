@@ -1,66 +1,55 @@
-var http = require('http');
-var express = require('express');
+var http = require('http')
+    , express = require('express')
+    , user = require('./routes/user')
+    , routes = require('./routes/index')
+    , path = require('path');
+
+var session = require('express-session');
 var app = express();
+var bodyParser = require('body-parser');
+var mysql = require('mysql');
 var ejsEngine = require("ejs-locals");
 app.engine("ejs", ejsEngine);
 app.set("view engine", "ejs");
-const bodyParser = require('body-parser');
 
-const fs = require('fs');
-const hostname = 'localhost';
-const port = 9999;
 
-app.use(express.static(__dirname + "/public"));
-app.use('/views',express.static('views'));
+var hostname = 'localhost';
+var port = 9999;
 
-app.get('/', (req, res) => {
-    fs.readFile('./views/login/index.ejs', (err, data) => {
-        if (err) {
-            res.writeHead(404);
-            res.write('Lost file!');
-        } else {
-            res.write(data);
-        }
-        res.end();
-    })
+// ! mysql
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'images'
 });
 
-app.get('/register', (req, res) => {
-    fs.readFile('./views/register/index.ejs', (err, data) => {
-        if (err) {
-            res.writeHead(404);
-            res.write('Lost file!');
-        } else {
-            res.write(data);
-        }
-        res.end();
-    })
+connection.connect(function (err) {
+    if (err) throw err;
+    console.log("Database Connected!");
 });
 
-app.get('/home', (req, res) => {
-    fs.readFile('./views/home/index.ejs', (err, data) => {
-        if (err) {
-            res.writeHead(404);
-            res.write('Lost file!');
-        } else {
-            res.write(data);
-        }
-        res.end();
-    })
-});
+global.db = connection;
 
-app.get('/upload', (req, res) => {
-    fs.readFile('./views/home/upload.ejs', (err, data) => {
-        if (err) {
-            res.writeHead(404);
-            res.write('Lost file!');
-        } else {
-            res.write(data);
-        }
-        res.end();
-    })
-});
+// ! all environments
+app.set('views', __dirname + '/views');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60000 }
+}))
 
-app.listen(9999, () => {
+// ? development only
+app.get('/', routes.index);//call for main index page
+app.get('/register', user.signup);//call for signup page
+app.post('/register', user.signup);//call for signup post 
+
+
+// ! Middleware
+app.listen(`${port}`, () => {
     console.log(`App running in http://${hostname}:${port}`);
 });
