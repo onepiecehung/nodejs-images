@@ -10,7 +10,7 @@
   "author": "hungnguyenhuu@yandex.com",
   "license": "ISC",
   "dependencies": {
-    "ejs": "^2.6.1",
+    "ejs": "^3.1.7",
     "ejs-locals": "^1.0.2",
     "express": "^4.16.4",
     "express-session": "^1.16.1",
